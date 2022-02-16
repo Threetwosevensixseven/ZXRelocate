@@ -1,0 +1,97 @@
+true                            EQU $0001
+TRUE                            EQU $0001
+false                           EQU $0000
+FALSE                           EQU $0000
+zeusz80                         EQU $0001
+ZEUSZ80                         EQU $0001
+zeusver                         EQU $0051
+ZEUSVER                         EQU $0051
+zeusmaxdatabreakpoint           EQU $000E
+ZEUSMAXDATABREAKPOINT           EQU $000E
+zeuside                         EQU $0001
+ZEUSIDE                         EQU $0001
+timestr                         EQU "04:50 pm Wed 16/Feb/2022"
+TIMESTR                         EQU "04:50 pm Wed 16/Feb/2022"
+ZEUSEXECDIR                     EQU "C:\Users\robin\Documents\Visual Studio 2015\Projects\JetPowerJack\tools"
+zeusexecdir                     EQU "C:\Users\robin\Documents\Visual Studio 2015\Projects\JetPowerJack\tools"
+ZEUSSRCDIR                      EQU "C:\Users\robin\Documents\Visual Studio 2015\Projects\JetDPCL5\src\asm\drv"
+zeussrcdir                      EQU "C:\Users\robin\Documents\Visual Studio 2015\Projects\JetDPCL5\src\asm\drv"
+ZEUS_EXEC_DIR                   EQU "C:\Users\robin\Documents\Visual Studio 2015\Projects\JetPowerJack\tools"
+zeus_exec_dir                   EQU "C:\Users\robin\Documents\Visual Studio 2015\Projects\JetPowerJack\tools"
+Zeus_exec_dir                   EQU "C:\Users\robin\Documents\Visual Studio 2015\Projects\JetPowerJack\tools"
+ZEUS_SRC_DIR                    EQU "C:\Users\robin\Documents\Visual Studio 2015\Projects\JetDPCL5\src\asm\drv"
+zeus_src_dir                    EQU "C:\Users\robin\Documents\Visual Studio 2015\Projects\JetDPCL5\src\asm\drv"
+Zeus_src_dir                    EQU "C:\Users\robin\Documents\Visual Studio 2015\Projects\JetDPCL5\src\asm\drv"
+Zeus_cpm_sec_per_track          EQU $0080
+Zeus_cpm_sec_per_block          EQU $0020
+Zeus_cpm_blocks_per_disk        EQU $0800
+Zeus_cpm_dir_cnt                EQU $0200
+Zeus_cpm_res_tracks_0           EQU $0001
+Zeus_cpm_res_tracks_x           EQU $0000
+Zeus_cpm_disk_cnt               EQU $0008
+Zeus_cpm_user                   EQU $0000
+Zeus_parasys_baud               EQU $1E8480
+zoStrict                        EQU $0000
+zoStrictSyntax                  EQU $0000
+zoCheckORG                      EQU $0000
+zoAllowFloatingLabels           EQU $0000
+zoWarnLeadingZero               EQU $0001
+zoWarnFlow                      EQU $0001
+zoStringIndexFromZero           EQU $0000
+zoLogicOperatorsHighPri         EQU $0000
+zoSupportStringEscapes          EQU $0000
+zoSupportNext                   EQU $0001
+zoParaSysNotEmulate             EQU $0000
+zoSimpleDisplacementCalc        EQU $0000
+zoConstData                     EQU $0001
+zoDebug                         EQU $0000
+zoSpectrumFloats                EQU $0001
+zoSpinnish                      EQU $0000
+zeus_cpm_drives                 EQU "C:\Users\robin\Downloads\cpm_app (2)\cpm_disks.bin"
+bZeusRunningInHeaven            EQU $0000
+bZeusRunningInHell              EQU $0000
+Cspect                          EQU $0001
+zxAllowFloatingLabels           EQU $0000
+ApiEntry                        EQU $0000
+EntryStart                      EQU $000F
+ApiError                        EQU $001C
+return_status                   EQU $001F
+output_char                     EQU $0024
+check_printer                   EQU $0036
+OpenESPConnection               EQU $003C
+OpenESPConnection.RE_Ok         EQU $003D
+OpenESPConnection.pexit         EQU $0046
+RE_Fred                         EQU $0072
+RE_Foo123                       EQU $0055
+Commands                        EQU $0046
+Commands.OK                     EQU $0046
+Commands.pexit                  EQU $004B
+reloc_start                     EQU $0200
+reloc_end                       EQU $0202
+DriverBank                      EQU $001E
+DriverDrvBank                   EQU $001F
+printer_port                    EQU $00FE
+relocs                          EQU $0000
+ULA_PORT                        EQU $00FE
+SMC                             EQU $0000
+CR                              EQU $000D
+LF                              EQU $000A
+Space                           EQU $0020
+Copyright                       EQU $007F
+Border                          MACRO (Colour[])
+Freeze                          MACRO (Colour1[],Colour2[])
+MFBreak                         MACRO ()
+CSBreak                         MACRO ()
+CSExit                          MACRO ()
+BuildNo                         MACRO ()
+BuildNoValue                    EQU "2"
+BuildDate                       MACRO ()
+BuildDateValue                  EQU "16 Feb 2022"
+BuildTime                       MACRO ()
+BuildTimeValue                  EQU "16:49"
+BuildTimeSecs                   MACRO ()
+BuildTimeSecsValue              EQU "16:49:43"
+Start                           EQU $0000
+Length                          EQU $0202
+BuildNo[000000].mexit           EQU $000E
+OpenESPConnection.CSBreak[000002].mexit EQU $0045
