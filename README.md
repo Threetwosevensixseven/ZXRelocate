@@ -38,7 +38,7 @@ The `ZXRelocate.exe.config` file looks like this:
 
 **SymbolRegEx**: this is an [XML-escaped](https://www.freeformatter.com/xml-escape.html) [regular expression](https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expressions) that matches the labels for the symbols to be relocated, and captures the 16-bit value into a `(?<Address>.*)` [named capture group](https://www.regular-expressions.info/named.html) with the name `Address`. In the example here, we are matching all labels containing `RE_`, followed by `EQU`, followed by the address. This is a reasonably common symbol list format, so you may not need to change the regex.
 
-**AddressOffset**: this is an integer number (between `-65535` and `65535`). Because Next drivers patch the _high_ byte of each offset, we need to set this value to `1`, to add `+1` to the symbol which is typically pointing at the low byte in most assembly source.
+**AddressOffset**: this is an integer number (between `-65535` and `65535`). Because Next drivers patch the _high_ byte of each offset, we need to set this value to `1`, to add `+1` to the symbol which is typically pointing at the low byte in most assembly source. For non-zero values of `AddressOffset`, the addresses in the symbol file can be any of these formats: `$hhhh`, `#hhhh`, `0xhhhh` (all hex) or `nnnnn` (decimal). For zero values, the symbol address is copied verbatim and can be in any format.
 
 **DefineWord**: this is the directive your assembler uses to define 16-bit words. `dw ` or `defw` are typical values that work in most assemblers.
 
