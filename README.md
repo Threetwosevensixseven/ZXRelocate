@@ -68,7 +68,7 @@ Commands                        EQU $0046
 ## Example Relocate Table File
 Here is a relocate table file generated from the test data in this repository:
 
-```
+```asm
 ; RelocateTable.asm
 ; Generated automatically by Relocate.exe
 
@@ -80,7 +80,7 @@ dw $0056 ; RE_Foo123                       EQU $0055
 ## Example Relocate Count File
 Here is a relocate count file generated from the test data in this repository:
 
-```
+```asm
 ; RelocateCount.asm
 ; Generated automatically by Relocate.exe
 
