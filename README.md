@@ -56,10 +56,11 @@ The `ZXRelocate.exe.config` file looks like this:
 Here is a short section of a symbol file, containing three `RE_` symbols that will match the regex:
 
 ```
-check_printer                   EQU $0036
-OpenESPConnection               EQU $003C
-OpenESPConnection.RE_Ok         EQU $003D
-OpenESPConnection.pexit         EQU $0046
+ApiError                        EQU $001C
+return_status                   EQU $001F
+Test                            EQU $003C
+Test.RE_Ok                      EQU $003D
+Test.pexit                      EQU $0046
 RE_Fred                         EQU $0072
 RE_Foo123                       EQU $0055
 Commands                        EQU $0046
@@ -72,7 +73,7 @@ Here is a relocate table file generated from the test data in this repository:
 ; RelocateTable.asm
 ; Generated automatically by Relocate.exe
 
-dw $003E ; OpenESPConnection.RE_Ok         EQU $003D
+dw $003E ; Test.RE_Ok                      EQU $003D
 dw $0073 ; RE_Fred                         EQU $0072
 dw $0056 ; RE_Foo123                       EQU $0055
 ```

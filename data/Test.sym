@@ -56,11 +56,9 @@ ApiEntry                        EQU $0000
 EntryStart                      EQU $000F
 ApiError                        EQU $001C
 return_status                   EQU $001F
-output_char                     EQU $0024
-check_printer                   EQU $0036
-OpenESPConnection               EQU $003C
-OpenESPConnection.RE_Ok         EQU $003D
-OpenESPConnection.pexit         EQU $0046
+Test                            EQU $003C
+Test.RE_Ok                      EQU $003D
+Test.pexit                      EQU $0046
 RE_Fred                         EQU $0072
 RE_Foo123                       EQU $0055
 Commands                        EQU $0046
@@ -70,7 +68,6 @@ reloc_start                     EQU $0200
 reloc_end                       EQU $0202
 DriverBank                      EQU $001E
 DriverDrvBank                   EQU $001F
-printer_port                    EQU $00FE
 relocs                          EQU $0000
 ULA_PORT                        EQU $00FE
 SMC                             EQU $0000
@@ -94,4 +91,3 @@ BuildTimeSecsValue              EQU "16:49:43"
 Start                           EQU $0000
 Length                          EQU $0202
 BuildNo[000000].mexit           EQU $000E
-OpenESPConnection.CSBreak[000002].mexit EQU $0045
