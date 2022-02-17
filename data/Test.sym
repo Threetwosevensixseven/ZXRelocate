@@ -61,6 +61,7 @@ Test.RE_Ok                      EQU $003D
 Test.pexit                      EQU $0046
 RE_Fred                         EQU $0072
 RE_Foo123                       EQU $0055
+BA_ZX0                          EQU $003D
 Commands                        EQU $0046
 Commands.OK                     EQU $0046
 Commands.pexit                  EQU $004B

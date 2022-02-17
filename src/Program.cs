@@ -13,6 +13,7 @@ namespace ZXRelocate
         static bool Interactive;
         static string SymbolFile = "";
         static string SymbolRegEx = "";
+        static string BankRegEx = "";
         static string RelocateTableFile = "";
         static string RelocateCountFile = "";
         static int AddressOffset = 0;
@@ -36,6 +37,8 @@ namespace ZXRelocate
                 Console.WriteLine("Relocate Count File: " + RelocateCountFile);
                 SymbolRegEx = (ConfigurationManager.AppSettings["SymbolRegEx"] ?? "").Trim();
                 Console.WriteLine("Symbol RegEx: " + SymbolRegEx);
+                BankRegEx = (ConfigurationManager.AppSettings["BankRegEx"] ?? "").Trim();
+                Console.WriteLine("Bank RegEx: " + BankRegEx);
                 string val = (ConfigurationManager.AppSettings["AddressOffset"] ?? "").Trim();
                 int.TryParse(val, out AddressOffset);
                 Console.WriteLine("Address Offset (add to every symbol): " + AddressOffset);
@@ -51,47 +54,57 @@ namespace ZXRelocate
                 Console.WriteLine("Reading symbol file...");
                 var lines = File.ReadAllLines(SymbolFile);
                 Console.WriteLine("Read " + lines.Length + " line(s).");
-                var r = new Regex(SymbolRegEx, RegexOptions.Singleline);
-                var matches = new Dictionary<string, string>();
+                var r_RL = new Regex(SymbolRegEx, RegexOptions.Singleline);
+                var r_BA = new Regex(BankRegEx, RegexOptions.Singleline);
+                var RL_matches = new Dictionary<string, string>();
+                var BA_matches = new Dictionary<string, string>();
                 foreach (string line in lines)
                 {
-                    var m = r.Match(line);
-                    if (!m.Groups["Address"].Success)
-                        continue;
-                    string oldval = m.Groups["Address"].Value;
-                    string newval = oldval;
-                    if (AddressOffset != 0)
+                    var m = r_RL.Match(line);
+                    if (m.Groups["Address"].Success)
                     {
-                        if (oldval.StartsWith("$"))
+                        string oldval = m.Groups["Address"].Value;
+                        string newval = oldval;
+                        if (AddressOffset != 0)
                         {
-                            string v = "0x" + oldval.Substring(1);
-                            int nv = Convert.ToInt32(v, 16);
-                            nv += AddressOffset;
-                            newval = "$" + nv.ToString("X4");
+                            if (oldval.StartsWith("$"))
+                            {
+                                string v = "0x" + oldval.Substring(1);
+                                int nv = Convert.ToInt32(v, 16);
+                                nv += AddressOffset;
+                                newval = "$" + nv.ToString("X4");
+                            }
+                            else if (oldval.StartsWith("#"))
+                            {
+                                string v = "0x" + oldval.Substring(1);
+                                int nv = Convert.ToInt32(v, 16);
+                                nv += AddressOffset;
+                                newval = "#" + nv.ToString("X4");
+                            }
+                            else if (oldval.StartsWith("0x"))
+                            {
+                                int nv = Convert.ToInt32(oldval, 16);
+                                nv += AddressOffset;
+                                newval = "0x" + nv.ToString("X4");
+                            }
+                            else
+                            {
+                                int nv = Convert.ToInt32(oldval);
+                                nv += AddressOffset;
+                                newval = nv.ToString();
+                            }
                         }
-                        else if (oldval.StartsWith("#"))
-                        {
-                            string v = "0x" + oldval.Substring(1);
-                            int nv = Convert.ToInt32(v, 16);
-                            nv += AddressOffset;
-                            newval = "#" + nv.ToString("X4");
-                        }
-                        else if (oldval.StartsWith("0x"))
-                        {
-                            int nv = Convert.ToInt32(oldval, 16);
-                            nv += AddressOffset;
-                            newval = "0x" + nv.ToString("X4");
-                        }
-                        else
-                        {
-                            int nv = Convert.ToInt32(oldval);
-                            nv += AddressOffset;
-                            newval = nv.ToString();
-                        }
+                        RL_matches.Add(newval, line);
                     }
-                    matches.Add(newval, line);
+                    m = r_BA.Match(line);
+                    if (m.Groups["Address"].Success)
+                    {
+                        string newval = m.Groups["Address"].Value;
+                        BA_matches.Add(newval, line);
+                    }
                 }
-                Console.WriteLine("Matched " + matches.Count + " line(s).");
+                Console.WriteLine("Matched " + RL_matches.Count + " relocation line(s).");
+                Console.WriteLine("Matched " + BA_matches.Count + " bank line(s).");
                 Console.WriteLine("Writing relocate table file...");
                 var sb = new StringBuilder();
                 if (IncludeComments)
@@ -102,7 +115,7 @@ namespace ZXRelocate
                     sb.AppendLine("Generated automatically by Relocate.exe");
                     sb.AppendLine();
                 }
-                foreach (var line in matches)
+                foreach (var line in RL_matches)
                 {
                     sb.Append(DefineWord);
                     sb.Append(line.Key);
@@ -126,12 +139,25 @@ namespace ZXRelocate
                     sb.AppendLine();
                 }
                 sb.Append("RelocateCount" + Equate);
-                sb.Append(matches.Count.ToString());
+                sb.Append(RL_matches.Count.ToString());
                 if (IncludeComments)
+                {
                     sb.Append(" ");
-                sb.Append(Comment);
-                sb.Append("Relocation table is " + (matches.Count * 2) + " byte(s) long");
+                    sb.Append(Comment);
+                    sb.Append("Relocation table is " + (RL_matches.Count * 2) + " byte(s) long");
+                }
                 sb.AppendLine();
+                foreach (var line in BA_matches)
+                {
+                    sb.Append(line.Value);
+                    if (IncludeComments)
+                    {
+                        sb.Append(" ");
+                        sb.Append(Comment);
+                        sb.Append("A bank ID will get patched here");
+                    }
+                    sb.AppendLine();
+                }
                 File.WriteAllText(RelocateCountFile, sb.ToString());
                 return 0;
             }
