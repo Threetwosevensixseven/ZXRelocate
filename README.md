@@ -88,6 +88,6 @@ Here is a relocate count file generated from the test data in this repository:
 RelocateCount EQU 3 ; Relocation table is 6 byte(s) long
 ```
 ## Copyright and Licence
-ZXRelocate is copyright © 2022 Robin Verhagen-Guest, and is licensed under [GPL-3](https://github.com/Threetwosevensixseven/ZXRelocate/blob/main/LICENSE).
+ZXRelocate is copyright © 2022 Robin Verhagen-Guest, and is licensed under [Apache-2.0](https://github.com/Threetwosevensixseven/ZXRelocate/blob/main/LICENSE).
 
 ZX Spectrum Next is a trademark of SpecNext Ltd.
