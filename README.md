@@ -6,11 +6,12 @@ Tool to generate relocation tables for ZX Spectrum Next™ drivers and other Z80
 
 * A count of the number of 16-bit address offsets that must be patched for relocation (between 0 and 255);
 * A list of the 16-bit address offsets themselves, organised as contiguous little-endian byte pairs. Each offset points to the _high_ byte of a 16-bit little-endian address to be patched. Because driver files are exactly 512 bytes long, the high bytes of these addresses will always be `0x00` or `0x01` before patching, and the driver installation routine will give a `Bad Relocation Table` error if any other values are encountered.
+* For each extra divMMC and ZX bank the be included, one or more bank ID 16-bit address offsets that must be patched with the dynamically allocated MMU bank IDs. These offsets point to the low bytes of each patch address.
 
 In order to generate driver files in an assembler, typically all the absolute addresses in the driver (the targets of jumps, calls, and 16-bit loads) must be patched. This quickly gets tedious during development, while the code you are writing is moving around. So it is advantageous to have a tool which will take care of this for you.
 
 ## Installation
-Install the [.NET Framework 4.8  Runtime](https://dotnet.microsoft.com/en-us/download/dotnet-framework/thank-you/net48-web-installer) if you do not already have it installed. Copy the files `ZXRelocate.exe` and `ZXRelocate.exe.config` into a directory, such as the one that contains your build script. Edit your build script to execute `ZXRelocate.exe`. Typically a driver will be assembled twice, since it contains self-referential data (although it could be managed in a single assembly pass using displacements). Therefore, add it to your build script between the first and second assembly. Have the first assembly export a symbol list, which `ZXRelocate.exe` will refer to. Have your assembly project include two assembly files - `RelocationTable.asm` which will contain up to 255 pairs of bytes, and `RelocationCount.asm`, which will define a single symbol that can be referenced in the driver header.
+Install the [.NET Framework 4.8  Runtime](https://dotnet.microsoft.com/en-us/download/dotnet-framework/thank-you/net48-web-installer) if you do not already have it installed. Copy the files `ZXRelocate.exe` and `ZXRelocate.exe.config` into a directory, such as the one that contains your build script. Edit your build script to execute `ZXRelocate.exe`. Typically a driver will be assembled twice, since it contains self-referential data (although it could be managed in a single assembly pass using displacements). Therefore, add it to your build script between the first and second assembly. Have the first assembly export a symbol list, which `ZXRelocate.exe` will refer to. Have your assembly project include two assembly files - `RelocationTable.asm` which will contain up to 255 pairs of bytes, and `RelocationCount.asm`, which will define a single `RelocateCount` symbol that can be referenced in the driver header, plus a symbol for each bank patch address offset extracted by this tool. 
 
 ## Config File
 The `ZXRelocate.exe.config` file looks like this:
@@ -21,6 +22,7 @@ The `ZXRelocate.exe.config` file looks like this:
   <appSettings>
     <add key="SymbolFile" value="..\data\Test.sym" />
     <add key="SymbolRegEx" value="RE_.*?\sEQU\s(?&lt;Address>.*)" />
+    <add key="BankRegEx" value="BA_.*?\sEQU\s(?&lt;Address>.*)" />
     <add key="AddressOffset" value="1" />
     <add key="DefineWord" value="dw " />
     <add key="Equate" value=" EQU " />
@@ -36,9 +38,11 @@ The `ZXRelocate.exe.config` file looks like this:
 ```
 **SymbolFile**: this is the path to the symbol list file exported by your driver project. It must already exist before you run `ZXRelocate.exe`.
 
-**SymbolRegEx**: this is an [XML-escaped](https://www.freeformatter.com/xml-escape.html) [regular expression](https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expressions) that matches the labels for the symbols to be relocated, and captures the 16-bit value into a `(?<Address>.*)` [named capture group](https://www.regular-expressions.info/named.html) with the name `Address`. In the example here, we are matching all labels containing `RE_`, followed by `EQU`, followed by the address. This is a reasonably common symbol list format, so you may not need to change the regex.
+**SymbolRegEx**: this is an [XML-escaped](https://www.freeformatter.com/xml-escape.html) [regular expression](https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expressions) that matches the labels for the symbols to be relocated, and captures the 16-bit value into a `(?<Address>.*)` [named capture group](https://www.regular-expressions.info/named.html) with the name `Address`. In the example here, we are matching all labels containing `RE_`, followed by `EQU`, followed by the address. This is a reasonably common symbol list format, so you may not need to change the regex if you stick to the convention of prefixing these symbols with `RE_`.
 
-**AddressOffset**: this is an integer number (between `-65535` and `65535`). Because Next drivers patch the _high_ byte of each offset, we need to set this value to `1`, to add `+1` to the symbol which is typically pointing at the low byte in most assembly source. For non-zero values of `AddressOffset`, the addresses in the symbol file can be any of these formats: `$hhhh`, `#hhhh`, `0xhhhh` (all hex) or `nnnnn` (decimal). For zero values, the symbol address is copied verbatim and can be in any format.
+**BankRegEx**: this is an XML-escaped regular expression that matches the labels for the bank patch symbols, and captures the 16-bit value into a `(?<Address>.*)` named capture group with the name `Address`. In the example here, we are matching all labels containing `BA_`, followed by `EQU`, followed by the address. Again, you may not need to change the regex if you stick to the convention of prefixing these symbols with `BA_`.
+
+**AddressOffset**: this is an integer number (between `-65535` and `65535`). It only applies to the relocation offsets extracted by the `SymbolRegEx` regex. Because Next drivers patch the _high_ byte of each relocation offset, we need to set this value to `1`, to add `+1` to the symbol which is typically pointing at the low byte in most assembly source. For non-zero values of `AddressOffset`, the addresses in the symbol file can be any of these formats: `$hhhh`, `#hhhh`, `0xhhhh` (all hex) or `nnnnn` (decimal). For zero values, the symbol address is copied verbatim and can be in any format.
 
 **DefineWord**: this is the directive your assembler uses to define 16-bit words. `dw ` or `defw` are typical values that work in most assemblers.
 
@@ -63,6 +67,9 @@ Test.RE_Ok                      EQU $003D
 Test.pexit                      EQU $0046
 RE_Fred                         EQU $0072
 RE_Foo123                       EQU $0055
+BA_ZX0                          EQU $003D
+BA_ZX1                          EQU $003F
+BA_MM0                          EQU $0041
 Commands                        EQU $0046
 ```
 
@@ -86,6 +93,9 @@ Here is a relocate count file generated from the test data in this repository:
 ; Generated automatically by Relocate.exe
 
 RelocateCount EQU 3 ; Relocation table is 6 byte(s) long
+BA_ZX0                          EQU $003D ; A bank ID will get patched here
+BA_ZX1                          EQU $003F ; A bank ID will get patched here
+BA_MM0                          EQU $0041 ; A bank ID will get patched here
 ```
 ## Copyright and Licence
 ZXRelocate is copyright © 2022 Robin Verhagen-Guest, and is licensed under [Apache-2.0](https://github.com/Threetwosevensixseven/ZXRelocate/blob/main/LICENSE).
