@@ -6,7 +6,7 @@ Tool to generate relocation tables for ZX Spectrum Next™ drivers and other Z80
 
 * A count of the number of 16-bit address offsets that must be patched for relocation (between 0 and 255);
 * A list of the 16-bit address offsets themselves, organised as contiguous little-endian byte pairs. Each offset points to the _high_ byte of a 16-bit little-endian address to be patched. Because driver files are exactly 512 bytes long, the high bytes of these addresses will always be `0x00` or `0x01` before patching, and the driver installation routine will give a `Bad Relocation Table` error if any other values are encountered.
-* For each extra divMMC and ZX bank the be included, one or more bank ID 16-bit address offsets that must be patched with the dynamically allocated MMU bank IDs. These offsets point to the low bytes of each patch address.
+* For each extra divMMC and ZX bank the be included, one or more bank ID 16-bit address offsets that must be patched with the dynamically allocated MMU bank IDs. Each offset points to a single byte containing a bank ID.
 
 In order to generate driver files in an assembler, typically all the absolute addresses in the driver (the targets of jumps, calls, and 16-bit loads) must be patched. This quickly gets tedious during development, while the code you are writing is moving around. So it is advantageous to have a tool which will take care of this for you.
 
